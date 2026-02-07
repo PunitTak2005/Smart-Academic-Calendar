@@ -1,0 +1,503 @@
+/* ===== Calendar weekend/Sunday ===== */
+/* Remove default weekend color */
+.react-calendar__month-view__days__day--weekend {
+  color: inherit;            /* normal text for Sat+Sun */
+}
+
+/* Sundays red only */
+.react-calendar__month-view__days__day--weekend:nth-child(7n + 1) {
+  color: #ef4444;            /* red Sundays */
+}
+
+/* Extra safety from tileClassName */
+.sunday-day {
+  color: #ef4444;
+}
+
+/* ===== Calendar selected/today's date styling ===== */
+/* Target the currently selected/today's date box */
+.react-calendar__tile--now, 
+.react-calendar__tile--active {
+  background: #e0e7ff !important; /* Light indigo/blue */
+  color: #4338ca !important;       /* Darker text for contrast */
+  border-radius: 8px;             /* Optional: smooth corners */
+}
+
+/* Optional: change the hover effect to match */
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+  background: #c7d2fe !important;
+}
+
+/* ===== Event Dots Styling ===== */
+/* General dot styling */
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  margin: 2px auto 0;
+}
+
+/* Specific colors based on type */
+.dot.official {
+  background-color: #ef4444; /* Red */
+}
+
+.dot.personal {
+  background-color: #2563eb; /* Blue */
+}
+
+.dot.global {
+  background-color: #9333ea; /* Purple */
+}
+
+/* Container for multiple dots */
+.dot-container {
+  display: flex;
+  gap: 2px;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+/* ...rest of your existing CSS (dashboard, filters, cards, dots, etc.)... */
+
+
+/* ===== Overall centered dashboard ===== */
+.dashboard-container {
+  min-height: 100vh;
+  background: #ffffff; /* full white page */
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  padding: 24px 40px;
+  box-sizing: border-box;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ===== Reminders strip ===== */
+.reminders-banner {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 13px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.reminder-item {
+  padding: 2px 6px;
+  background: #fee2e2;
+  border-radius: 4px;
+}
+
+/* ===== Top header (title + buttons) ===== */
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0;
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  margin-bottom: 18px;
+  box-shadow: none;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* ===== Header buttons (My Event / Refresh / etc.) ===== */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+/* Shared pill style for ALL buttons */
+.btn-pill {
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  border: none;
+  background: linear-gradient(120deg, #4f46e5, #3b82f6);
+  color: #ffffff;
+  box-shadow: 0 16px 32px rgba(59, 130, 246, 0.45);
+  transition: transform 0.1s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.btn-pill:hover {
+  background: linear-gradient(120deg, #4338ca, #2563eb);
+  transform: translateY(-1px);
+}
+
+/* outline variant */
+.btn-outline {
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 4px 10px rgba(148, 163, 184, 0.25);
+}
+
+.btn-outline:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+/* filter button sizing */
+.btn-filter {
+  padding: 10px 24px;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* generic icon spacing */
+.btn-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* My Event plus icon – plain blue like navbar underline */
+.btn-plus-blue {
+  color: #2563eb;
+  font-weight: 700;
+}
+
+/* ===== Filters card – wide strip ===== */
+.filters-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 22px;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 24px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+/* dropdowns */
+.filters-panel select,
+.filters-panel input[type="month"],
+.filters-panel input[type="number"] {
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  background: #ffffff;
+  min-width: 220px;
+}
+
+.filters-panel select:focus,
+.filters-panel input[type="month"]:focus,
+.filters-panel input[type="number"]:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* ===== Main body: two columns ===== */
+.calendar-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 20px;
+  height: calc(100vh - 220px);
+}
+
+/* Calendar & events cards */
+.calendar-pane,
+.events-pane {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e5e7eb;
+  padding: 16px 18px;
+  box-sizing: border-box;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+/* react-calendar */
+.react-calendar {
+  border: none;
+  width: 100%;
+  font-size: 13px;
+}
+
+/* Events heading */
+.events-pane h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* ===== Responsive tweaks ===== */
+@media (max-width: 900px) {
+  .dashboard-container {
+    padding: 16px;
+    max-width: 100%;
+  }
+
+  .calendar-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+    gap: 16px;
+  }
+
+  .events-pane {
+    order: -1;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .action-buttons {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .filter-apply-btn {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .filters-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-apply-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ===== Event form popup (center modal) ===== */
+.event-form-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.event-form {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px 24px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
+}
+
+/* inputs inside popup */
+.event-form input,
+.event-form select {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  box-sizing: border-box;
+}
+
+.event-form input:focus,
+.event-form select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* actions row */
+.event-form .form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* ===== Events list ===== */
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Event card */
+.event-card {
+  border-radius: 14px;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  font-size: 13px;
+}
+
+/* Color accents for global vs personal vs holiday */
+.event-card.global {
+  border-left-width: 4px !important;
+  border-left-style: solid !important;
+  border-left-color: #7c3aed !important; /* purple */
+}
+
+.event-card.holiday {
+  border-left-width: 4px !important;
+  border-left-style: solid !important;
+  border-left-color: #dc2626 !important; /* red */
+}
+
+.event-card.personal {
+  border-left-width: 4px !important;
+  border-left-style: solid !important;
+  border-left-color: #2563eb !important; /* blue */
+}
+
+
+/* Header row: icon + title + type chip */
+.event-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.event-title {
+  font-weight: 600;
+  color: #111827;
+  flex: 1;
+}
+
+/* Type chip */
+.event-type-chip {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #2563eb;
+  text-transform: capitalize;
+}
+
+/* Meta row: time, dept, location as chips */
+.event-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.event-time-chip,
+.event-dept-chip,
+.event-location-chip {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* time chip a bit more blue */
+.event-time-chip {
+  background: #eef2ff;
+  color: #2563eb;
+}
+
+/* Actions row */
+.event-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* Smaller buttons inside cards */
+.event-actions .btn-pill {
+  padding: 5px 12px;
+  font-size: 11px;
+  box-shadow: none;
+}
+
+/* base tile layout */
+.react-calendar__tile {
+  position: relative;
+}
+
+/* event indicator dot */
+.event-dot {
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+}
+
+/* optional: if you later want multiple dots based on data-count */
+.event-dot[data-count="2"] {
+  box-shadow: 4px 0 0 currentColor;
+}
+
+.event-dot[data-count="3"] {
+  box-shadow: -4px 0 0 currentColor, 4px 0 0 currentColor;
+}
+
+.calendar-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+/* Use the same colors as tileContent */
+.legend-dot-holiday {
+  background-color: #ef4444; /* red for official/global holiday */
+}
+
+.legend-dot-personal {
+  background-color: #2563eb; /* blue for personal events */
+}
+
+.legend-dot-global {
+  background-color: #7c3aed; /* purple for global events */
+}

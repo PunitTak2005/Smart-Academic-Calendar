@@ -1,0 +1,39 @@
+/* src/pages/CalendarPage.css */
+.calendar-page {
+  width: 100%;  /* full viewport width */
+  max-width: 100%;
+  margin: 0;
+  padding: 0;   /* CalendarView handles its own padding */
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.page-header {
+  text-align: center;
+  margin: 24px 0 16px;
+}
+
+/* ===== Calendar selected/today's date styling ===== */
+/* Target the currently selected/today's date box */
+.react-calendar__tile--now, 
+.react-calendar__tile--active {
+  background: #e0e7ff !important; /* Light indigo/blue */
+  color: #4338ca !important;       /* Darker text for contrast */
+  border-radius: 8px;             /* Optional: smooth corners */
+}
+
+/* Optional: change the hover effect to match */
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+  background: #c7d2fe !important;
+}
+
+@media (max-width: 768px) {
+  .calendar-page {
+    padding: 0;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+}

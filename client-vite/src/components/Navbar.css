@@ -1,0 +1,105 @@
+/* src/components/Navbar.css */
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;              /* white bar */
+  color: #111827;
+  padding: 0.6rem 1.5rem;
+  width: 100%;
+  height: 72px;                     /* fixed height so it’s clearly visible */
+  box-sizing: border-box;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* left: logo image/text */
+.navbar-left .navbar-logo {
+  color: #111827;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+}
+
+.navbar-left img {
+  height: 60px;                     /* adjust to your logo */
+  display: block;
+}
+
+/* generic logo text style if you ever use plain text */
+.navbar-logo {
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+
+/* center: links */
+.navbar-center {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-link {
+  position: relative;               /* for underline positioning */
+  color: #4b5563;
+  text-decoration: none;
+  font-size: 0.95rem;
+  padding-bottom: 0.25rem;          /* space for underline */
+}
+
+.nav-link:hover {
+  color: #111827;
+}
+
+/* active link: blue underline + darker text */
+.nav-link.active {
+  color: #111827;
+  border-bottom: 2px solid #3b82f6;
+}
+
+/* Optional: smooth underline animation */
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 0;
+  background-color: #2b56f2;          /* darker blue */
+  transition: width 0.2s ease;
+}
+
+.nav-link.active::after {
+  width: 100%;
+}
+
+/* right: user + logout */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-user {
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.nav-btn {
+  background: #111827;              /* dark pill */
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.4rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.nav-btn:hover {
+  background: #f9fafb;              /* Tailwind bg-gray-50 */
+  color: #111827;
+  border: 1px solid #111827;
+}

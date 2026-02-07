@@ -1,0 +1,218 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f5f5f5;
+}
+
+/* Root layout */
+.home-root {
+  min-height: 100vh;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 4rem;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.home-logo img {
+  height: 60px;
+  width: auto;
+}
+
+.home-header-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-header {
+  padding: 0.6rem 1.4rem;
+  border-radius: 0.5rem;
+  border: 1px solid #111827;
+  background: #111827;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-header:last-child {
+  background: #111827;
+}
+
+/* Main hero section */
+.home-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  align-items: stretch;
+  padding: 3rem 4rem 2rem;
+  gap: 2rem;
+}
+
+/* Left text block */
+.home-hero-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 540px;
+}
+
+.home-title {
+  font-size: 2.8rem;
+  line-height: 1.1;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 1.5rem;
+}
+
+.home-subtitle {
+  font-size: 1.05rem;
+  color: #4b5563;
+  margin-bottom: 2rem;
+}
+
+/* Big hero buttons */
+.home-hero-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.btn-hero-primary,
+.btn-hero-secondary {
+  width: 100%;
+  max-width: 520px;
+  padding: 0.95rem 1.4rem;
+  border-radius: 0.6rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-hero-primary {
+  background: #111827;
+  color: #ffffff;
+  border: 1px solid #111827;
+}
+
+.btn-hero-secondary {
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #d1d5db;
+}
+
+.btn-hero-primary .arrow {
+  font-size: 1.1rem;
+}
+
+/* Right angled image like screenshot */
+.home-hero-image-wrap {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+}
+
+.home-hero-image-mask {
+  position: relative;
+  overflow: hidden;
+  border-top-left-radius: 220px;
+  border-bottom-left-radius: 220px;
+  width: 100%;
+}
+
+.home-hero-image-mask img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Footer */
+.home-footer {
+  padding: 1rem 4rem;
+  font-size: 0.85rem;
+  color: #6b7280;
+  border-top: 1px solid #e5e5e5;
+}
+
+/* Modal */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.auth-modal {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+/* Logged in dashboard */
+.home-main-loggedin {
+  flex: 1;
+  padding: 2rem 4rem 3rem;
+  background: #f3f4f6;
+}
+
+.dashboard-card {
+  max-width: 900px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+  .home-main {
+    grid-template-columns: 1fr;
+    padding: 2rem 1.5rem;
+  }
+
+  .home-header {
+    padding: 1rem 1.5rem;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .home-hero-image-wrap {
+    order: -1;
+  }
+
+  .home-hero-buttons {
+    max-width: 100%;
+  }
+
+  .home-footer {
+    padding: 1rem 1.5rem;
+  }
+}
+
+.home-header {
+  position: relative;
+  z-index: 1100;
+}

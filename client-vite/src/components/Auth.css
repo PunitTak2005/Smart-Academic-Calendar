@@ -1,0 +1,355 @@
+/* ===========================
+   Techno NJR Academic Calendar - Auth.css (ULTRA SMALL + CURVE DROPDOWN)
+   =========================== */
+
+/* Reset & Base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #111827;
+}
+
+/* Page container */
+.register-page,
+.login-page {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  overflow: auto;
+}
+
+/* Background layers off */
+.register-bg,
+.login-bg,
+.register-bg-overlay,
+.login-bg-overlay {
+  display: none;
+}
+
+/* Card container */
+.register-card,
+.login-card {
+  width: 100%;
+  max-width: 20rem;
+  background-color: #ffffff;
+  border-radius: 0.9rem;
+  padding: 0.8rem 0.8rem;
+  margin: 0.35rem auto;
+  box-shadow: none;
+  border: 1px solid #e5e7eb;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* Header */
+.register-card-header,
+.login-card-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.7rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.register-card-header:hover,
+.login-card-header:hover {
+  color: #111827;
+}
+
+.register-back-arrow,
+.login-back-arrow {
+  font-size: 0.85rem;
+}
+
+/* Logo */
+.register-logo-wrapper,
+.login-logo-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.35rem;
+}
+
+.register-logo,
+.login-logo {
+  height: 28px;
+  object-fit: contain;
+}
+
+/* Title */
+.register-title,
+.login-title {
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.45rem;
+  color: #111827;
+}
+
+/* Form layout */
+.register-form,
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+/* Labels */
+.register-label,
+.login-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.14rem;
+}
+
+/* Input wrapper */
+.register-input-wrapper,
+.login-input-wrapper {
+  position: relative;
+}
+
+/* Inputs & selects - CURVE MATCH */
+.register-input,
+.login-input,
+select.register-input {
+  width: 100%;
+  height: 1.75rem;
+  padding: 0 0.6rem;
+  border-radius: 999px;  /* FULL CURVE */
+  border: 1px solid #e5e7eb;
+  font-size: 0.72rem;
+  outline: none;
+  background-color: #f9fafb;
+  color: #111827;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+/* DROPDOWN CURVE FOCUS - Matches inputs exactly */
+select.register-input {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.55rem center;
+  background-repeat: no-repeat;
+  background-size: 0.9rem;
+  padding-right: 1.8rem;
+  cursor: pointer;
+  appearance: none;
+  border-radius: 999px !important;
+}
+
+/* DROPDOWN OPEN STATE */
+select.register-input:focus,
+select.register-input:hover {
+  border-radius: 999px !important;
+}
+
+/* WEBKIT DROPDOWN */
+.register-input-wrapper select::-webkit-calendar-picker-indicator,
+select.register-input::-ms-expand {
+  display: none;
+}
+
+.register-input-wrapper select,
+.login-input-wrapper select {
+  border-radius: 999px;
+}
+
+/* Focus - CURVE PRESERVED */
+.register-input:focus,
+.login-input:focus,
+select.register-input:focus {
+  background-color: #ffffff;
+  border-color: #111827;
+  box-shadow: 0 0 0 1px #111827;
+  border-radius: 999px;
+}
+
+.register-input::placeholder,
+.login-input::placeholder {
+  color: #9ca3af;
+}
+
+/* Password input: extra right padding for small eye icon */
+.login-password-input {
+  padding-right: 1.8rem;
+}
+
+/* Password wrapper: allow icon to be fully visible */
+.login-password-wrapper {
+  overflow: visible;
+}
+
+/* Password eye toggle – SMALL curved button inside input */
+.login-password-toggle {
+  position: absolute;
+  right: 0.35rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 999px;
+  border: none;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transition: all 0.15s ease;
+}
+
+.login-password-toggle:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.login-password-toggle:hover:not(:disabled) {
+  background-color: #f9fafb;
+  color: #111827;
+}
+
+/* Icon size */
+.login-password-icon {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+/* Primary button */
+.register-button,
+.login-button {
+  width: 100%;
+  margin-top: 0.55rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 999px;
+  border: none;
+  background-color: #020617;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* Bottom Sign-in section */
+.register-footer-text,
+.login-footer-text {
+  margin-top: 0.7rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid #f3f4f6;
+  text-align: center;
+  font-size: 0.72rem;
+  color: #6b7280;
+}
+
+.register-footer-link,
+.login-footer-link {
+  margin-left: 0.15rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #111827;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+  position: relative;
+}
+
+/* Underline hover effect */
+.register-footer-link::after,
+.login-footer-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.05rem;
+  width: 100%;
+  height: 1px;
+  background-color: #111827;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.15s ease;
+}
+
+.register-footer-link:hover::after,
+.login-footer-link:hover::after {
+  transform: scaleX(1);
+}
+
+/* Error message */
+.error-message {
+  padding: 0.45rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.55rem;
+  color: #dc2626;
+  font-size: 0.75rem;
+  text-align: center;
+  margin-bottom: 0.55rem;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .register-page,
+  .login-page {
+    padding: 0.25rem 0;
+  }
+
+  .register-card,
+  .login-card {
+    margin: 0.3rem auto;
+    padding: 0.8rem 0.7rem;
+    border-radius: 0.9rem;
+    max-width: 100%;
+  }
+
+  .register-title,
+  .login-title {
+    font-size: 0.95rem;
+    margin-bottom: 0.45rem;
+  }
+
+  .register-input,
+  .login-input,
+  select.register-input {
+    height: 1.7rem;
+    font-size: 0.7rem;
+  }
+
+  .register-button,
+  .login-button {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.73rem;
+  }
+}
+
+.input-error {
+  border-color: #ef4444 !important;
+  background-color: #fef2f2;
+}
+
+.field-error {
+  color: #dc2626;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  display: block;
+  font-weight: 500;
+}
+
+.submit-error {
+  border-left: 4px solid #ef4444;
+}

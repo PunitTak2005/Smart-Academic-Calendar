@@ -1,0 +1,31 @@
+/* ===== Page background (behind hero + dashboard) ===== */
+body {
+  margin: 0;
+  background: #f5f6f8;
+}
+
+/* Optional wrapper around the whole calendar page */
+.calendar-page {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #f5f7ff 0, #f9fafb 40%, #f3f4f6 100%);
+}
+
+/* ===== Hero banner at top (title + subtitle) ===== */
+.calendar-hero {
+  padding: 24px 0 28px;
+  text-align: center;
+  background: radial-gradient(circle at top, #f5f7ff 0, #edf2ff 45%, #f3f4f6 100%);
+}
+
+.calendar-hero-title {
+  margin: 0 0 6px;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.calendar-hero-subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #4b5563;
+}

@@ -1,0 +1,154 @@
+/* src/pages/MyEventsPage.css */
+
+/* Container */
+.my-events-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 1.5rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Header row */
+.my-events-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.my-events-header h1 {
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+/* Refresh button (improved) */
+.my-events-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1.1rem;
+  font-size: 0.9rem;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  color: #111827;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.05s ease;
+}
+
+.my-events-refresh-btn:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.12);
+  transform: translateY(-1px);
+}
+
+.my-events-refresh-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.my-events-refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Loading / empty text */
+.my-events-container > div {
+  font-size: 0.98rem;
+}
+
+/* List / layout: stacked on small screens, multi-column on wider */
+.my-events-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.75rem;
+}
+
+/* Card base */
+.my-event-card {
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #e5e7eb;
+  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.95rem;
+}
+
+/* Global holiday - Red background and border */
+.my-event-card.global-holiday {
+  background: #fee2e2;
+  border-color: #fecaca;
+  border-left-color: #ef4444;
+}
+
+/* Global event - Purple background and border */
+.my-event-card.global {
+  background: #f3e8ff;
+  border-color: #e9d5ff;
+  border-left-color: #9333ea;
+}
+
+/* Personal event - Blue background and border */
+.my-event-card.personal {
+  background: #dbeafe;
+  border-color: #bfdbfe;
+  border-left-color: #2563eb;
+}
+
+/* Header line inside card */
+.my-event-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+/* Event type pill */
+.my-event-type {
+  font-size: 0.8rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: #e5e7eb;
+}
+
+/* Time row */
+.my-event-time {
+  font-size: 0.86rem;
+  color: #64748b;
+}
+
+/* Dept & location rows */
+.my-event-card div {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Small screen tweak */
+@media (max-width: 480px) {
+  .my-events-container {
+    margin: 20px auto;
+    padding: 12px;
+  }
+
+  .my-events-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .my-events-header h1 {
+    font-size: 1.5rem;
+  }
+}
