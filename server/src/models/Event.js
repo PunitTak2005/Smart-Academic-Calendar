@@ -6,10 +6,27 @@ import mongoose from "mongoose";
 
 const eventSchema = new mongoose.Schema(
   {
-    title: { type: String, required: [true, "Title is required"] },
+    title: { 
+      type: String, 
+      required: [true, "Title is required"],
+      trim: true 
+    },
 
-    start: { type: Date, required: [true, "Start date is required"] },
-    end: { type: Date, required: [true, "End date is required"] },
+    start: { 
+      type: Date, 
+      required: [true, "Start date is required"] 
+    },
+    
+    end: { 
+      type: Date, 
+      required: [true, "End date is required"],
+      validate: {
+        validator: function (value) {
+          return value >= this.start;
+        },
+        message: "End date/time cannot be earlier than start date/time"
+      }
+    },
 
     // Event types matching frontend dropdown
     type: {
@@ -32,7 +49,7 @@ const eventSchema = new mongoose.Schema(
     dept: {
       type: String,
       enum: [
-        "",
+        "All Departments",
         "CSE",
         "ECE",
         "Civil",
@@ -41,7 +58,14 @@ const eventSchema = new mongoose.Schema(
         "EE",
         "Basic Sciences",
       ],
-      default: "",
+      default: "All Departments",
+      // ✅ FIX: The setter runs BEFORE built-in enum validation to intercept empty frontend payloads cleanly
+      set: function (val) {
+        if (!val || val.trim() === "") {
+          return "All Departments";
+        }
+        return val;
+      }
     },
 
     // Year scope (matches Dashboard yearScope + batch years)
@@ -62,11 +86,22 @@ const eventSchema = new mongoose.Schema(
       default: "All Years",
     },
 
-    location: { type: String, default: "", trim: true },
+    location: { 
+      type: String, 
+      default: "", 
+      trim: true 
+    },
 
     // Core flags for faculty/student dashboard logic
-    isGlobal: { type: Boolean, default: false }, // campus-wide vs personal
-    isReminder: { type: Boolean, default: false }, // reminder events
+    isGlobal: { 
+      type: Boolean, 
+      default: false 
+    }, // campus-wide vs personal
+    
+    isReminder: { 
+      type: Boolean, 
+      default: false 
+    }, // reminder events
 
     // Ownership tracking
     createdBy: {
@@ -87,6 +122,17 @@ const eventSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+
+// =========================
+// MIDDLEWARE & INDEXES
+// =========================
+
+// Pre-save hook to maintain consistency: holidays must always be global campus-wide events.
+eventSchema.pre("save", function () {
+  if (this.type === "holiday") {
+    this.isGlobal = true;
+  }
+});
 
 // Indexes for fast dashboard queries
 eventSchema.index({ start: 1, year: 1, dept: 1 });

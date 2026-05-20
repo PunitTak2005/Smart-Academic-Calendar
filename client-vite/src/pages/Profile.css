@@ -1,13 +1,16 @@
-/* ProfilePage.css - Cleaned and Fixed */
+/* ProfilePage.css - Cleaned, Fixed, and Fully Centered Layout */
 
 /* Page container */
 .profile-page {
-  max-width: 1120px;
+  max-width: 800px; /* Reduced to pull the elements tighter together */
   margin: 0 auto;
   padding: 24px 16px;
   display: flex;
   flex-direction: column;
+  align-items: center; /* Centers all child blocks horizontally */
   gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Header gradient card */
@@ -17,9 +20,14 @@
   padding: 2rem 20px;
   color: #eef2ff;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column; /* Stack header elements vertically */
+  justify-content: center;
+  align-items: center;    /* Center content inside header */
+  text-align: center;     /* Center header text strings */
+  gap: 1.25rem;
   box-shadow: 0 18px 45px rgba(15, 23, 42, 0.28);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .profile-header-text h1 {
@@ -35,66 +43,73 @@
 }
 
 .profile-header-meta {
-  text-align: right;
+  text-align: center; /* Centered instead of right-aligned */
   font-size: 0.9rem;
   opacity: 0.9;
   line-height: 1.6;
 }
 
-/* Main grid */
+/* Main Grid transformed to a centralized single-column structure */
 .profile-grid {
-  display: grid;
-  grid-template-columns: 1.1fr 2fr;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 20px;
+  width: 100%;
 }
 
-@media (max-width: 768px) {
-  .profile-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .profile-header-card {
-    flex-direction: column;
-    text-align: center;
-    gap: 1rem;
-    padding: 1.5rem;
-  }
+/* Right column layout wrapper */
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
 }
 
 /* Generic card styling */
 .profile-card {
   background: #ffffff;
   border-radius: 16px;
-  padding: 1.5rem 1.75rem;
+  padding: 2rem;
   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
   border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers form inputs and internal card elements */
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Left overview card header */
+/* Profile card header styling */
 .profile-card-header {
   display: flex;
+  flex-direction: column; /* Stacks avatar above name */
   align-items: center;
+  text-align: center;
   gap: 1rem;
+  width: 100%;
 }
 
 .profile-avatar {
-  width: 72px;
-  height: 72px;
+  width: 80px;
+  height: 80px;
   border-radius: 9999px;
   background: linear-gradient(135deg, #4f46e5, #7c3aed);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  font-size: 2rem;
+  font-size: 2.25rem;
   font-weight: 700;
   flex-shrink: 0;
 }
 
 .profile-main-info h2 {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 600;
-  margin: 0 0 0.125rem 0;
+  margin: 0 0 0.25rem 0;
+  color: #111827;
 }
 
 .profile-main-info p {
@@ -103,23 +118,31 @@
   margin: 0;
 }
 
-/* Profile rows */
+/* Profile Rows - Balanced fields centered within the card container */
 .profile-card-body {
-  margin-top: 1.25rem;
+  margin-top: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-w: 450px; /* Binds rows to a clean scannable central track */
 }
 
 .profile-row {
   display: flex;
-  justify-content: space-between;
-  font-size: 0.9rem;
+  flex-direction: column; /* Stack labels directly above values */
+  align-items: center;
+  text-align: center;
+  font-size: 0.95rem;
+  gap: 0.25rem;
+  width: 100%;
 }
 
 .profile-row .label {
   color: #6b7280;
   font-weight: 500;
+  font-size: 0.85rem;
 }
 
 .profile-row .value {
@@ -127,98 +150,189 @@
   color: #111827;
 }
 
-/* Academic details */
+/* Form Editing Fields */
+.edit-input {
+  width: 100%;
+  max-width: 320px; /* Centers and matches standard compact fields */
+  text-align: center; /* Centers text typed inside inputs */
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  color: #111827;
+  background-color: #f9fafb;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  background-color: #ffffff;
+}
+
+/* Override row constraints to center input elements cleanly */
+.profile-row .edit-input {
+  max-width: 100%;
+}
+
+/* Academic details title and sub-sections */
 .profile-section-title {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #374151;
-  margin: 0 0 1rem 0;
+  margin: 0 0 1.25rem 0;
+  text-align: center;
 }
 
 .profile-details-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem 1.5rem;
+  display: flex;
+  flex-direction: column; /* Convert columns to a single centered vertical stack */
+  align-items: center;
+  gap: 1.25rem;
+  width: 100%;
 }
 
 .profile-detail {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
 }
 
 .profile-detail .label {
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   color: #6b7280;
   margin-bottom: 0.25rem;
 }
 
 .profile-detail .value {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #111827;
 }
 
-/* Primary button */
-.btn-primary {
+/* --- UPDATE PASSWORD / SECURITY FORM PURPLE STYLING --- */
+.security-form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.security-form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4f46e5;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+.security-form-group .edit-input {
+  border: 1px solid #e0e0ff;
+  background-color: #fcfcff;
+}
+
+.security-form-group .edit-input:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
+  background-color: #ffffff;
+}
+
+/* Buttons */
+.btn-primary, .btn-secondary {
   margin-top: 1.25rem;
-  padding: 0.75rem 1.25rem;
-  border: none;
+  padding: 0.75rem 1.5rem;
   border-radius: 9999px;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
-  color: #ffffff;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
   width: 100%;
+  max-width: 320px; /* Keeps action buttons balanced and neat */
+  text-align: center;
+}
+
+.btn-primary {
+  border: none;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #ffffff;
 }
 
 .btn-primary:hover {
   opacity: 0.96;
   transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(79, 70, 229, 0.3);
+  box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
 }
 
 .btn-primary:active {
   transform: translateY(0);
 }
 
-/* App-wide backgrounds (optional, if needed) */
+.btn-primary:disabled, .btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  border: 1px solid #d1d5db;
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+/* Utility Flex Layout Rules used inside forms */
+.flex { display: flex; }
+.justify-center { justify-content: center; }
+.align-center { align-items: center; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.w-full { width: 100%; }
+.flex-1 { flex: 1; }
+.mt-4 { margin-top: 1rem; }
+.space-y-3 > * + * { margin-top: 0.75rem; }
+.pt-2 { padding-top: 0.5rem; }
+
+/* Status Banners */
+.error-banner, .success-banner {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0.5rem 0 1rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center-align text within banner spaces */
+  width: 100%;
+  max-width: 450px;
+  box-sizing: border-box;
+}
+
+.error-banner {
+  background-color: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+}
+
+.success-banner {
+  background-color: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #15803d;
+}
+
+/* App shell environment */
 body {
   background-color: #f8fafc;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-.app-shell {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f1f5f9 0%, #f8fafc 100%);
-}
-
-/* Base card */
-.profile-card {
-  background-color: #ffffff;
-  border-radius: 16px;
-  padding: 18px 20px;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
-  border: 1px solid #e5e7eb;
-  display: flex;
-  flex-direction: column;
-  height: 100%;              /* stretch to full column height */
-}
-
-/* Left overview card only: push button to bottom */
-.profile-card.profile-card-overview {
-  /* same as .profile-card but allows special layout if needed */
-}
-
-.profile-card-overview .profile-card-body {
-  margin-top: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;                   /* take remaining vertical space */
-}
-
-.profile-card-overview .btn-primary {
-  margin-top: 16px;
+  margin: 0;
 }

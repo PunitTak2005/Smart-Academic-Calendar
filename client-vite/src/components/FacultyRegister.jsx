@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 import "./Auth.css";
 
-function FacultyRegister({ onRegister, switchToLogin, goHome }) {
+function FacultyRegister() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
@@ -12,331 +13,210 @@ function FacultyRegister({ onRegister, switchToLogin, goHome }) {
     password: "",
     designation: "",
   });
-  const [fieldErrors, setFieldErrors] = useState({});  // Per-field errors
+
+  const [fieldErrors, setFieldErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const depts = ["CSE", "ECE", "Civil", "Mechanical", "AI", "EE", "Basic Sciences"];
 
-  const togglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
-  };
+  const goHome = () => navigate("/");
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
-  const clearFieldError = (field) => {
-    setFieldErrors(prev => ({ ...prev, [field]: "" }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    // Phone validation: Only allow digits and max length of 10
+    if (name === "phone") {
+      const onlyNums = value.replace(/[^0-9]/g, "");
+      if (onlyNums.length <= 10) {
+        setFormData((prev) => ({ ...prev, [name]: onlyNums }));
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+
+    setFieldErrors((prev) => ({ ...prev, [name]: "" }));
     setSubmitError("");
   };
 
   const validateForm = () => {
     const newErrors = {};
-    
     if (!formData.name.trim()) newErrors.name = "Full name is required";
     if (!formData.email.trim()) newErrors.email = "Faculty email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = "Invalid email format";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
+      newErrors.email = "Invalid email format";
     if (!formData.dept) newErrors.dept = "Department is required";
-    if (!formData.phone || !/^\d{10}$/.test(formData.phone)) newErrors.phone = "Phone must be exactly 10 digits";
+    
+    // Strict 10 digit check
+    if (formData.phone.length !== 10) {
+      newErrors.phone = "Phone must be exactly 10 digits";
+    }
+    
     if (!formData.designation.trim()) newErrors.designation = "Designation is required";
-    if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
+    if (formData.password.length < 6) newErrors.password = "Min 6 characters required";
 
     setFieldErrors(newErrors);
-    
-    if (Object.keys(newErrors).length > 0) {
-      setSubmitError("Please fix errors in the form");
-      return false;
-    }
-    return true;
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitError("");
-
     if (!validateForm()) return;
 
     setLoading(true);
-    
     try {
       const response = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name.trim(),
-          email: formData.email.trim().toLowerCase(),
-          dept: formData.dept.trim(),
-          phone: formData.phone.trim(),
-          password: formData.password,
-          designation: formData.designation.trim() || "Faculty Member",
-          role: "faculty",
-        }),
+        body: JSON.stringify({ ...formData, role: "faculty" }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        // Handle backend validation errors (duplicates, etc.)
-        if (data.errors && typeof data.errors === 'object') {
-          const backendErrors = {};
-          Object.entries(data.errors).forEach(([field, msgs]) => {
-            backendErrors[field] = Array.isArray(msgs) ? msgs[0].message || msgs[0] : msgs;
-          });
-          setFieldErrors(backendErrors);
-          setSubmitError(`Field error: ${Object.values(backendErrors)[0]}`);
-        } else {
-          setSubmitError(data.message || "Registration failed");
-        }
+        setSubmitError(data.message || "Registration failed");
         return;
       }
 
-      // Success
-      const user = data.user || { 
-        name: formData.name.trim(),
-        email: formData.email.trim().toLowerCase(),
-        dept: formData.dept.trim(),
-        phone: formData.phone.trim(),
-        designation: formData.designation.trim() || "Faculty Member",
-        role: "faculty" 
-      };
-
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("name", user.name);
-      localStorage.setItem("email", user.email);
-      localStorage.setItem("dept", user.dept);
-      localStorage.setItem("phone", user.phone);
-      localStorage.setItem("designation", user.designation);
-      localStorage.setItem("role", user.role);
-
-      onRegister({
-        role: user.role,
-        name: user.name,
-        email: user.email,
-        dept: user.dept,
-        phone: user.phone,
-        designation: user.designation,
-        token: data.token,
-      });
-      
+      setIsSuccess(true);
+      // ✅ Redirect to public landing page instead of login layout since account is unapproved
+      setTimeout(() => navigate("/"), 5000);
     } catch (err) {
       setSubmitError("Network error. Please try again.");
     } finally {
+      loading(false);
       setLoading(false);
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    clearFieldError(name);
-  };
-
-  const handlePhoneChange = (e) => {
-    const value = e.target.value.replace(/\D/g, "");
-    if (value.length <= 10) {
-      setFormData(prev => ({ ...prev, phone: value }));
-      clearFieldError("phone");
-    }
-  };
-
-  const getInputClass = (field) => {
-    return `register-input ${fieldErrors[field] ? "input-error" : ""}`;
-  };
-
-  const getSelectClass = (field) => {
-    return `register-input year-select ${fieldErrors[field] ? "input-error" : ""}`;
-  };
+  // =========================================================================
+  // ⏳ UPDATED SUCCESS STATE (Waiting for Administrative Approval)
+  // =========================================================================
+  if (isSuccess) {
+    return (
+      <div className="register-page">
+        <div className="register-bg" />
+        <div className="register-bg-overlay" />
+        <div className="register-card">
+          <div className="register-card-header" onClick={goHome} style={{ cursor: "pointer" }}>
+            <span className="register-back-arrow">←</span>
+            <span>Home</span>
+          </div>
+          <div className="register-logo-wrapper">
+            <img src="/1.png" alt="Techno NJR Logo" className="register-logo" />
+          </div>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "2rem 1rem",
+            }}
+          >
+            <div style={{ color: "#3b82f6", fontSize: "1.4rem", fontWeight: 700, marginBottom: "1rem" }}>
+              📝 Request Submitted
+            </div>
+            <p style={{ color: "#334155", fontSize: "1.05rem", fontWeight: 500, lineHeight: "1.5" }}>
+              Your account has been successfully created and added to the 
+              <strong style={{ color: "#111827" }}> Administrative Approval Queue</strong>.
+            </p>
+            <p style={{ color: "#64748b", fontSize: "0.85rem", marginTop: "1.5rem", fontWeight: 400 }}>
+              You will be able to log in once a system administrator validates your profile credentials. 
+              Returning to homepage...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="register-page">
       <div className="register-bg" />
       <div className="register-bg-overlay" />
       <div className="register-card">
-        <div className="register-card-header" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
-          <span className="register-back-arrow">←</span>
-          <span>Home</span>
+        <div className="register-card-header" onClick={goHome} style={{ cursor: "pointer" }}>
+          <span className="register-back-arrow">←</span> <span>Home</span>
         </div>
 
         <div className="register-logo-wrapper">
-          <img src="/1.png" alt="Techno NJR Logo" className="register-logo" />
+          <img src="/1.png" alt="Logo" className="register-logo" />
         </div>
 
         <h1 className="register-title">Faculty Register</h1>
 
         {submitError && (
-          <div
-            className="error-message submit-error"
-            style={{ 
-              color: "#ef4444", 
-              textAlign: "center", 
-              marginBottom: "1rem",
-              fontSize: "0.9rem",
-              padding: "0.75rem",
-              background: "#fee2e2",
-              borderRadius: "0.5rem",
-              borderLeft: "4px solid #ef4444",
-            }}
-          >
+          <div className="login-error" style={{ background: "#fee2e2", color: "#ef4444", padding: "10px", borderRadius: "5px", marginBottom: "15px", textAlign: "center", fontSize: "14px" }}>
             {submitError}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="register-form">
-          <div>
-            <label className="register-label">Full Name <span style={{color: '#ef4444'}}>*</span></label>
-            <div className="register-input-wrapper">
-              <input
-                name="name"
-                type="text"
-                value={formData.name}
-                onChange={handleChange}
-                className={getInputClass("name")}
-                placeholder="Prof. John Doe"
-                required
-                disabled={loading}
-              />
-            </div>
-            {fieldErrors.name && (
-              <span className="field-error">{fieldErrors.name}</span>
-            )}
-          </div>
+          <label className="register-label">Full Name</label>
+          <input name="name" value={formData.name} onChange={handleChange} className="register-input" placeholder="Prof. John Doe" required />
+          {fieldErrors.name && <span style={{color: 'red', fontSize: '11px'}}>{fieldErrors.name}</span>}
 
-          <div>
-            <label className="register-label">Faculty Email <span style={{color: '#ef4444'}}>*</span></label>
-            <div className="register-input-wrapper">
-              <input
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                className={getInputClass("email")}
-                placeholder="faculty@technonjr.ac.in"
-                required
-                disabled={loading}
-              />
-            </div>
-            {fieldErrors.email && (
-              <span className="field-error">{fieldErrors.email}</span>
-            )}
-          </div>
+          <label className="register-label">Faculty Email</label>
+          <input name="email" type="email" value={formData.email} onChange={handleChange} className="register-input" placeholder="faculty@technonjr.ac.in" required />
+          {fieldErrors.email && <span style={{color: 'red', fontSize: '11px'}}>{fieldErrors.email}</span>}
 
-          <div>
-            <label className="register-label">Department <span style={{color: '#ef4444'}}>*</span></label>
-            <div className="register-input-wrapper year-select-wrapper">
-              <select
-                name="dept"
-                value={formData.dept}
-                onChange={handleChange}
-                className={getSelectClass("dept")}
-                required
-                disabled={loading}
-              >
-                <option value="">Select Department</option>
-                {depts.map(d => (
-                  <option key={d} value={d}>
-                    {d === "Basic Sciences" ? d : `${d} Engineering`}
-                  </option>
-                ))}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div>
+              <label className="register-label">Department</label>
+              <select name="dept" value={formData.dept} onChange={handleChange} className="register-input" required>
+                <option value="">Select</option>
+                {depts.map(d => <option key={d} value={d.toUpperCase()}>{d}</option>)}
               </select>
             </div>
-            {fieldErrors.dept && (
-              <span className="field-error">{fieldErrors.dept}</span>
-            )}
-          </div>
-
-          <div>
-            <label className="register-label">Phone Number <span style={{color: '#ef4444'}}>*</span></label>
-            <div className="register-input-wrapper">
-              <input
-                name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handlePhoneChange}
-                className={getInputClass("phone")}
-                placeholder="9876543210"
-                maxLength={10}
-                required
-                disabled={loading}
+            <div>
+              <label className="register-label">Phone</label>
+              <input 
+                name="phone" 
+                value={formData.phone} 
+                onChange={handleChange} 
+                className="register-input" 
+                placeholder="10 Digits" 
+                maxLength="10"
+                required 
               />
             </div>
-            {fieldErrors.phone && (
-              <span className="field-error">{fieldErrors.phone}</span>
-            )}
           </div>
+          {fieldErrors.phone && <div style={{color: 'red', fontSize: '11px', marginTop: '-10px', marginBottom: '10px'}}>{fieldErrors.phone}</div>}
 
-          <div>
-            <label className="register-label">Designation <span style={{color: '#ef4444'}}>*</span></label>
-            <div className="register-input-wrapper">
-              <input
-                name="designation"
-                type="text"
-                value={formData.designation}
-                onChange={handleChange}
-                className={getInputClass("designation")}
-                placeholder="e.g., Associate Professor, Lecturer"
-                required
-                disabled={loading}
-              />
-            </div>
-            {fieldErrors.designation && (
-              <span className="field-error">{fieldErrors.designation}</span>
-            )}
+          <label className="register-label">Designation</label>
+          <input name="designation" value={formData.designation} onChange={handleChange} className="register-input" placeholder="Associate Professor" required />
+
+          <label className="register-label">Password</label>
+          <div style={{ position: "relative" }}>
+            <input
+              name="password"
+              type={showPassword ? "text" : "password"}
+              value={formData.password}
+              onChange={handleChange}
+              className="register-input"
+              style={{ paddingRight: "40px" }}
+              required
+            />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#64748b" }}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
           </div>
+          {fieldErrors.password && <span style={{color: 'red', fontSize: '11px'}}>{fieldErrors.password}</span>}
 
-          <div>
-            <label className="register-label">Password <span style={{color: '#ef4444'}}>*</span></label>
-            <div className="register-input-wrapper relative">
-              <input
-                name="password"
-                type={showPassword ? "text" : "password"}
-                value={formData.password}
-                onChange={handleChange}
-                className={getInputClass("password")}
-                placeholder="•••••••• (min 6 chars)"
-                minLength={6}
-                required
-                disabled={loading}
-              />
-              <button
-                type="button"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 p-0 bg-transparent border-none"
-                onClick={togglePasswordVisibility}
-                disabled={loading}
-              >
-                {showPassword ? (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
-                  </svg>
-                )}
-              </button>
-            </div>
-            {fieldErrors.password && (
-              <span className="field-error">{fieldErrors.password}</span>
-            )}
-          </div>
-
-          <button
-            type="submit"
-            className="register-button"
-            disabled={loading}
-          >
-            {loading ? "Creating Faculty Account..." : "Create Faculty Account"}
+          <button type="submit" className="register-button" disabled={loading}>
+            {loading ? "Submitting Request..." : "Register Faculty"}
           </button>
         </form>
 
-        <p className="register-footer-text">
-          Already have a faculty account?{" "}
-          <button
-            type="button"
-            onClick={() => navigate("/faculty-login")}
-            className="register-footer-link"
-            disabled={loading}
-          >
-            Login
-          </button>
+        <p className="register-footer-text" style={{ textAlign: 'center', marginTop: '20px' }}>
+          Already have an account?{" "}
+          <span onClick={() => navigate("/faculty-login")} style={{ color: "#2563eb", cursor: "pointer", fontWeight: "bold" }}>Login</span>
         </p>
       </div>
     </div>

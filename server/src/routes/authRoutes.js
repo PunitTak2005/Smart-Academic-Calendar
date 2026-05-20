@@ -1,105 +1,109 @@
 // src/routes/authRoutes.js
-// ✅ MERGED: controller pattern + debug + check-unique + /me (current user)
-
 import express from "express";
-import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
+import { register, login, getMe, changePassword } from "../controllers/authController.js";
+import User from "../models/User.js";
+
+// Import your protected auth middleware wrapper
 import auth from "../middleware/auth.js";
-import { register, login, getMe } from "../controllers/authController.js";
 
 const router = express.Router();
 
-/**
- * POST /api/auth/register
- * Body: { name, email, password, role, phone, rollNumber, ... }
- * Delegates to controller (handles hashing, unique checks, JWT).
- */
+// =========================================================================
+// 🔓 PUBLIC ROUTING PORTS
+// =========================================================================
 router.post("/register", register);
-
-/**
- * POST /api/auth/login
- * Body: { email, password }
- * Delegates to controller for clean separation.
- */
 router.post("/login", login);
 
-/**
- * GET /api/auth/me
- * Protected – requires Authorization: Bearer <token>
- * Returns the current logged-in user (sans password), via controller.
- */
-router.get("/me", auth, getMe);
+
+// =========================================================================
+// 🔐 PROTECTED ROUTING PORTS (Requires valid Bearer Token Session Context)
+// =========================================================================
+router.get("/me", auth, getMe); 
+router.put("/change-password", auth, changePassword);
+
+
+// =========================================================================
+// 🛡️ ADMINISTRATIVE APPROVAL QUEUE PORTS (Requires Admin Role Elevation)
+// =========================================================================
 
 /**
- * GET /api/auth/debug-indexes
- * TEMP: Debug MongoDB indexes + sample users. Remove in production.
+ * @route   GET /api/auth/pending-faculty
+ * @desc    Fetches all unapproved faculty registration documents
+ * @access  Private (Admin Only)
  */
-router.get("/debug-indexes", async (req, res) => {
+router.get("/pending-faculty", auth, async (req, res) => {
   try {
-    const UserModule = await import("../models/User.js");
-    const User = UserModule.default;
+    // Role Authorization Guard Check
+    if (req.user?.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Access Denied. Administrative privileges required." });
+    }
 
-    const collection = mongoose.connection.db.collection("users");
-    const indexes = await collection.indexes();
+    // Leverages the '.pendingRequests()' schema query helper from your model
+    const pendingFaculty = await User.find().pendingRequests();
 
-    const sampleUsers = await User.find()
-      .limit(3)
-      .select("name email phone rollNumber role");
-
-    const totalUsers = await User.countDocuments();
-
-    res.json({
+    return res.status(200).json({
       success: true,
-      indexes,
-      uniqueFields: indexes
-        .filter((i) => i.unique)
-        .map((i) => Object.keys(i.key)),
-      totalUsers,
-      sampleUsers,
-      message: "Unique constraints status above",
+      count: pendingFaculty.length,
+      data: pendingFaculty
     });
   } catch (err) {
-    console.error("/debug-indexes error:", err);
-    res.status(500).json({ error: err.message });
+    console.error("🔴 GET PENDING FACULTY ROUTE ERROR:", err);
+    return res.status(500).json({ success: false, message: "Internal server error fetching pending applications." });
   }
 });
 
 /**
- * GET /api/auth/check-unique?field=email&value=test@gmail.com
- * Real-time unique check (case-insensitive) for frontend UX.
- * Fields: name, email, phone, rollNumber.
+ * @route   PUT /api/auth/approve-faculty/:id
+ * @desc    Process approval queue items via explicit trigger decisions ("approve" | "reject")
+ * @access  Private (Admin Only)
  */
-router.get("/check-unique", async (req, res) => {
+router.put("/approve-faculty/:id", auth, async (req, res) => {
   try {
-    const { field, value } = req.query;
-
-    if (!field || !value) {
-      return res
-        .status(400)
-        .json({ exists: false, message: "Field and value required" });
+    // Role Authorization Guard Check
+    if (req.user?.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Access Denied. Administrative privileges required." });
     }
 
-    if (!["name", "email", "phone", "rollNumber"].includes(field)) {
-      return res
-        .status(400)
-        .json({ exists: false, message: "Invalid field" });
+    const { id } = req.params;
+    const { action } = req.body; // Frontend passes: { action: "approve" } or { action: "reject" }
+
+    if (!action || !["approve", "reject"].includes(action)) {
+      return res.status(400).json({ success: false, message: "Invalid payload parameters. action must be 'approve' or 'reject'." });
     }
 
-    const UserModule = await import("../models/User.js");
-    const User = UserModule.default;
+    const facultyUser = await User.findById(id);
+    if (!facultyUser) {
+      return res.status(404).json({ success: false, message: "Faculty application record not found." });
+    }
 
-    // Case-insensitive exact match
-    const exists = await User.exists({
-      [field]: { $regex: new RegExp(`^${value.trim()}$`, "i") },
-    });
+    if (facultyUser.role !== "faculty") {
+      return res.status(400).json({ success: false, message: "Target document user does not match faculty role criteria." });
+    }
 
-    return res.json({
-      exists: !!exists,
-      message: exists ? `${field} already taken` : "Available",
-    });
+    // Decision Core Logic Block 
+    if (action === "approve") {
+      facultyUser.isApproved = true;
+      await facultyUser.save();
+
+      return res.status(200).json({
+        success: true,
+        message: `Account registration request for ${facultyUser.name} has been approved.`
+      });
+    }
+
+    if (action === "reject") {
+      // Remove the record entirely from the compilation map
+      await User.findByIdAndDelete(id);
+
+      return res.status(200).json({
+        success: true,
+        message: `Registration application for ${facultyUser.name} was rejected and dropped from database registers.`
+      });
+    }
+
   } catch (err) {
-    console.error("/check-unique error:", err);
-    res.status(500).json({ exists: false, message: "Server error" });
+    console.error("🔴 PROCESS FACULTY ROUTE ERROR:", err);
+    return res.status(500).json({ success: false, message: "Internal server error applying queue resolution decision." });
   }
 });
 

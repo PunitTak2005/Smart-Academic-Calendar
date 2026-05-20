@@ -1,4 +1,3 @@
-// models/User.js
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
@@ -35,14 +34,24 @@ const userSchema = new mongoose.Schema(
       required: [true, "Department required"],
       uppercase: true,
       trim: true,
-      enum: ["CSE", "ECE", "CE", "CIVIL", "ME", "MECHANICAL", "AI", "EE", "BS", "BASIC SCIENCES"]
+      enum: [
+        "CSE", "COMPUTER SCIENCE", 
+        "IT", "INFORMATION TECHNOLOGY", 
+        "ECE", "ELECTRONICS & COMMUNICATION", "ELECTRONICS AND COMMUNICATION",
+        "ME", "MECHANICAL", "MECHANICAL ENGINEERING",
+        "CE", "CIVIL", "CIVIL ENGINEERING",
+        "EE", "ELECTRICAL", "ELECTRICAL ENGINEERING",
+        "AI", "ARTIFICIAL INTELLIGENCE (AI)", "BS", "BASIC SCIENCES"
+      ]
     },
     semester: String,
     year: {
       type: String,
       enum: ["1st", "2nd", "3rd", "4th"],
       required: function () {
-        return this.role === "student";
+        const update = this.getUpdate ? this.getUpdate() : null;
+        const role = this.role || (update && (update.role || (update.$set && update.$set.role)));
+        return role === "student"; // 🔑 Only required for students
       }
     },
     enrollmentId: {
@@ -54,16 +63,31 @@ const userSchema = new mongoose.Schema(
     rollNumber: {
       type: String,
       unique: true,
-      sparse: true,
+      sparse: true, 
       trim: true,
-      uppercase: true,
+      uppercase: true, 
+      required: function () {
+        const update = this.getUpdate ? this.getUpdate() : null;
+        const role = this.role || (update && (update.role || (update.$set && update.$set.role)));
+        return role === "student"; // 🔑 Only required for students
+      },
       maxlength: [10, "Roll number must be ≤10 characters"],
-      match: [/^[A-Z0-9]{6,10}$/, "6-10 uppercase letters + numbers (e.g. CSE301234)"]
+      match: [/^[A-Z0-9]{6,10}$/, "Roll number must be 6-10 alphanumeric characters (e.g., 23ETCCS126)"]
     },
     role: {
       type: String,
       enum: ["student", "faculty", "admin"],
       default: "student"
+    },
+    // =========================================================================
+    // 🔐 ADMINISTRATIVE FACULTY APPROVAL QUEUE FLAG
+    // =========================================================================
+    isApproved: {
+      type: Boolean,
+      default: function () {
+        // Faculty requires validation (false); Students and Admins auto-approve (true)
+        return this.role !== "faculty";
+      }
     },
     isActive: {
       type: Boolean,
@@ -78,7 +102,9 @@ const userSchema = new mongoose.Schema(
       trim: true,
       maxlength: [50],
       required: function () {
-        return this.role === "faculty";
+        const update = this.getUpdate ? this.getUpdate() : null;
+        const role = this.role || (update && (update.role || (update.$set && update.$set.role)));
+        return role === "faculty"; // 🔑 Only required for faculty
       }
     },
     permissions: [
@@ -97,17 +123,12 @@ const userSchema = new mongoose.Schema(
 
 // --- INDEXES ---
 userSchema.index({ dept: 1, year: 1, role: 1 });
-userSchema.index({ role: 1, isActive: 1 });
+userSchema.index({ role: 1, isActive: 1, isApproved: 1 }); // ✅ Added isApproved optimization index
 
-// --- MIDDLEWARE ---
+// --- MIDDLEWARE HOOKS ---
 
-/**
- * ✅ FIXED PRE-SAVE HOOK
- * Removed 'next' parameter to resolve "next is not a function" error in async context.
- */
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
-  
   try {
     const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);
@@ -116,16 +137,20 @@ userSchema.pre("save", async function () {
   }
 });
 
-/**
- * ✅ FIXED UPDATE HOOK
- */
 userSchema.pre("findOneAndUpdate", async function () {
   const update = this.getUpdate();
-  
-  if (update.password) {
+  let password = update.password || (update.$set && update.$set.password);
+
+  if (password) {
     try {
       const salt = await bcrypt.genSalt(12);
-      update.password = await bcrypt.hash(update.password, salt);
+      const hashedPassword = await bcrypt.hash(password, salt);
+      
+      if (update.password) {
+        update.password = hashedPassword;
+      } else {
+        update.$set.password = hashedPassword;
+      }
     } catch (error) {
       throw error;
     }
@@ -141,10 +166,11 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 
 userSchema.methods.toAuthJSON = function () {
   return {
-    _id: this._id,
+    id: this._id.toString(),
     name: this.name,
     email: this.email,
     role: this.role,
+    isApproved: this.isApproved, // ✅ Exposed check variable securely to JWT context pipeline
     dept: this.dept,
     year: this.year,
     semester: this.semester,
@@ -191,6 +217,11 @@ userSchema.query.active = function () {
 
 userSchema.query.byDept = function (dept) {
   return this.where({ dept });
+};
+
+// Query helper to pull unapproved applications instantly for queue dashboards
+userSchema.query.pendingRequests = function () {
+  return this.where({ role: "faculty", isApproved: false });
 };
 
 const User = mongoose.model("User", userSchema);

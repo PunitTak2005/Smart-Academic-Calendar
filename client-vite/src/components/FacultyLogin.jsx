@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react"; 
 import "./Auth.css";
 
 function FacultyLogin({ onLogin }) {
@@ -33,33 +34,31 @@ function FacultyLogin({ onLogin }) {
         return;
       }
 
-      // Support both { user: {...} } and flat { role: "faculty" } responses
       const userData = data.user || data;
 
-      if (userData.role !== "faculty") {
-        setError("This login is only for faculty accounts");
+      // ✅ FIX 1: Allow both faculty and admin roles to authenticate
+      if (userData.role !== "faculty" && userData.role !== "admin") {
+        setError("This login portal is restricted to faculty and admin accounts");
         setLoading(false);
         return;
       }
 
-      // 1. Persist to LocalStorage
+      // 1. Sync data to LocalStorage
       localStorage.setItem("token", data.token);
-      localStorage.setItem("role", userData.role);
-      localStorage.setItem("name", userData.name);
+      localStorage.setItem("user", JSON.stringify(userData));
 
-      // 2. Update Global State
-      // We await this if it's an async function to prevent race conditions
-      await onLogin({
-        role: userData.role,
-        name: userData.name,
-        email: userData.email,
-        token: data.token,
-      });
+      // 2. Update parent state defensively
+      try {
+        await onLogin(userData, data.token);
+      } catch (stateErr) {
+        console.warn("Parent state synchronization timing mismatch caught cleanly:", stateErr);
+      }
 
-      // 3. Redirect
-      navigate("/faculty-dashboard", { replace: true });
+      // ✅ FIX 2: Correct redirection target path to match your App route configuration
+      navigate("/calendar", { replace: true });
 
     } catch (err) {
+      console.error("Login Error:", err);
       setError("Server connection failed");
       setLoading(false);
     }
@@ -71,35 +70,96 @@ function FacultyLogin({ onLogin }) {
         <div className="login-card-header" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
           <span className="login-back-arrow">←</span> <span>Home</span>
         </div>
+
         <div className="login-logo-wrapper">
           <img src="/1.png" alt="Logo" className="login-logo" />
         </div>
-        <h1 className="login-title">Faculty Login</h1>
-        {error && <div className="login-error" style={{ color: "#ef4444", background: "#fee2e2", padding: "10px", borderRadius: "5px", marginBottom: "10px" }}>{error}</div>}
+
+        {/* ✅ Updated text matching authorized identities */}
+        <h1 className="login-title">Faculty & Admin Login</h1>
+
+        {error && (
+          <div className="login-error" style={{ 
+            color: "#ef4444", 
+            background: "#fee2e2", 
+            padding: "10px", 
+            borderRadius: "5px", 
+            marginBottom: "15px",
+            fontSize: "14px",
+            textAlign: "center"
+          }}>
+            {error}
+          </div>
+        )}
         
         <form onSubmit={handleSubmit} className="login-form">
-          <label className="login-label">Faculty Email</label>
+          <label className="login-label">Email Address</label>
           <input
             type="email"
             className="login-input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="faculty@technonjr.ac.in"
+            placeholder="name@technonjr.ac.in"
             required
           />
+
           <label className="login-label">Password</label>
-          <input
-            type={showPassword ? "text" : "password"}
-            className="login-input"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            required
-          />
+          <div style={{ position: "relative", width: "100%" }}>
+            <input
+              type={showPassword ? "text" : "password"}
+              className="login-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              style={{ paddingRight: "45px" }} 
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute",
+                right: "12px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "#64748b",
+                display: "flex",
+                alignItems: "center",
+                padding: "4px"
+              }}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
+
           <button type="submit" className="login-button" disabled={loading}>
             {loading ? "Verifying..." : "Login"}
           </button>
         </form>
+
+        <div className="login-footer" style={{ marginTop: "20px", textAlign: "center" }}>
+          <p style={{ fontSize: "14px", color: "#64748b" }}>
+            Don't have an account?{" "}
+            <button 
+              type="button"
+              onClick={() => navigate("/faculty-register")}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#2563eb",
+                fontWeight: "600",
+                cursor: "pointer",
+                padding: 0,
+                textDecoration: "underline"
+              }}
+            >
+              Register here
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );

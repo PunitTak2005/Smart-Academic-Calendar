@@ -36,7 +36,6 @@ function Homepage({ user, onLogin, onLogout }) {
   const switchToLogin = () => setAuthView("login");
 
   // Handle login/register success from child components
-  // userData: { role, name?, email?, token }
   const handleAuthSuccess = (userData, tokenFromChild) => {
     const token = userData.token || tokenFromChild;
     if (!token) {
@@ -55,6 +54,25 @@ function Homepage({ user, onLogin, onLogout }) {
     );
   };
 
+  // =========================================================================
+  // 🧼 CLEAN LOCAL LOGOUT INTEGRATION
+  // =========================================================================
+  const handleLocalLogout = () => {
+    // Clear custom validation states from memory cache
+    localStorage.removeItem("role");
+    localStorage.removeItem("dept");
+    localStorage.removeItem("year");
+
+    // Execute root level clean state resetting & route re-mapping to "/"
+    if (typeof onLogout === "function") {
+      onLogout();
+    } else {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      navigate("/", { replace: true });
+    }
+  };
+
   // Lock/unlock body scroll when modal is open
   useEffect(() => {
     document.body.style.overflow = "auto";
@@ -71,7 +89,8 @@ function Homepage({ user, onLogin, onLogout }) {
           <div className="home-logo">
             <img src="/1.png" alt="Techno NJR" />
           </div>
-          <button onClick={onLogout} className="btn-header">
+          {/* ✅ Updated to drop administrative cache traces flawlessly */}
+          <button onClick={handleLocalLogout} className="btn-header">
             Logout
           </button>
         </header>
@@ -111,7 +130,7 @@ function Homepage({ user, onLogin, onLogout }) {
       <main className="home-main">
         <section className="home-hero-text">
           <h1 className="home-title">
-            Techno NJR Smart Academic Calendar
+            Techno India NJR Smart Academic Calendar
           </h1>
           <p className="home-subtitle">
             Plan classes, exams, assignments, and events in one place.
@@ -144,7 +163,7 @@ function Homepage({ user, onLogin, onLogout }) {
       </main>
 
       <footer className="home-footer">
-        © 2026 Techno NJR Smart Academic Calendar. All rights reserved.
+        © 2026 Techno India NJR Smart Academic Calendar. All rights reserved.
       </footer>
     </div>
   );

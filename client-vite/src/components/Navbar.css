@@ -4,62 +4,64 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #ffffff;              /* white bar */
+  background: #ffffff;
   color: #111827;
   padding: 0.6rem 1.5rem;
   width: 100%;
-  height: 72px;                     /* fixed height so it’s clearly visible */
+  height: 72px;
   box-sizing: border-box;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 1000;
 }
 
-/* left: logo image/text */
+/* left: logo */
 .navbar-left .navbar-logo {
   color: #111827;
   text-decoration: none;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
 }
 
 .navbar-left img {
-  height: 60px;                     /* adjust to your logo */
+  height: 52px;
   display: block;
 }
 
-/* generic logo text style if you ever use plain text */
-.navbar-logo {
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 1.25rem;
-}
-
-/* center: links */
+/* center: link block */
 .navbar-center {
   display: flex;
   gap: 2rem;
   align-items: center;
 }
 
+/* Mobile-only elements wrapped inside center block (hidden on desktop) */
+.mobile-user-section {
+  display: none;
+}
+
 .nav-link {
-  position: relative;               /* for underline positioning */
+  position: relative;
   color: #4b5563;
   text-decoration: none;
   font-size: 0.95rem;
-  padding-bottom: 0.25rem;          /* space for underline */
+  padding-bottom: 0.25rem;
 }
 
 .nav-link:hover {
   color: #111827;
 }
 
-/* active link: blue underline + darker text */
 .nav-link.active {
   color: #111827;
   border-bottom: 2px solid #3b82f6;
 }
 
-/* Optional: smooth underline animation */
 .nav-link::after {
   content: "";
   position: absolute;
@@ -67,7 +69,7 @@
   bottom: 0;
   height: 2px;
   width: 0;
-  background-color: #2b56f2;          /* darker blue */
+  background-color: #2b56f2;
   transition: width 0.2s ease;
 }
 
@@ -75,7 +77,7 @@
   width: 100%;
 }
 
-/* right: user + logout */
+/* right: auth controls */
 .navbar-right {
   display: flex;
   align-items: center;
@@ -85,21 +87,113 @@
 .nav-user {
   font-weight: 500;
   color: #4b5563;
+  white-space: nowrap;
 }
 
 .nav-btn {
-  background: #111827;              /* dark pill */
+  background: #111827;
   color: #fff;
-  border: none;
+  border: 1px solid #111827;
   padding: 0.5rem 1.4rem;
   border-radius: 9999px;
   font-weight: 500;
   cursor: pointer;
+  white-space: nowrap;
   transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 
 .nav-btn:hover {
-  background: #f9fafb;              /* Tailwind bg-gray-50 */
+  background: #f9fafb;
   color: #111827;
   border: 1px solid #111827;
+}
+
+/* Hamburger Menu Toggle Button */
+.navbar-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 24px;
+  height: 18px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1010;
+}
+
+.navbar-toggle span {
+  width: 100%;
+  height: 2px;
+  background-color: #111827;
+  transition: all 0.2s ease;
+}
+
+/* =========================================================================
+   📱 MOBILE RESPONSIVE MEDIA BREAKPOINT (Under 768px)
+   ========================================================================= */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.6rem 1rem;
+  }
+
+  .navbar-left img {
+    height: 42px;
+  }
+
+  /* Expose hamburger button lines on mobile */
+  .navbar-toggle {
+    display: flex;
+  }
+
+  /* Hide original desktop desktop-auth right block completely on phones */
+  .navbar-right-desktop {
+    display: none;
+  }
+
+  /* Structural navigation drawer menu */
+  .navbar-center {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 72px;
+    left: 0;
+    width: 100%;
+    background: #ffffff;
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.08);
+    padding: 2rem 1.5rem;
+    gap: 1.75rem;
+    border-top: 1px solid #f3f4f6;
+    box-sizing: border-box;
+  }
+
+  /* Toggle display when mobile drawer opens */
+  .navbar-center.mobile-open {
+    display: flex;
+  }
+
+  /* Expose user text info and action buttons stacked inside drawer layout */
+  .mobile-user-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    margin-top: 0.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f3f4f6;
+  }
+
+  .nav-user {
+    font-size: 1rem;
+    color: #111827;
+    font-weight: 600;
+  }
+
+  .nav-btn {
+    width: 100%;
+    text-align: center;
+    padding: 0.6rem 1.5rem;
+    font-size: 0.95rem;
+  }
 }

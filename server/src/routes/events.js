@@ -1,5 +1,5 @@
 // src/routes/events.js
-// ✅ FINAL MERGED ESM ROUTER - Smart Academic Calendar
+// ✅ FINAL MERGED ESM ROUTER - Smart Academic Calendar (With Admin Access)
 // Global + personal events, student dept/year filtering, /mine route, make-personal, full CRUD, role checks
 
 import express from "express";
@@ -16,22 +16,29 @@ const router = express.Router();
  * GET /api/events
  * Returns global events + user's personal events
  * (students: also non-global events for their dept/year)
+ * (admins: can fetch and view ALL events across the system)
  */
 router.get("/", auth, async (req, res) => {
   try {
     const userId = (req.user._id || req.user.id).toString();
     const { role, dept, year } = req.user;
+    const isAdmin = role === "admin";
 
-    const query = {
-      $or: [
-        { isGlobal: true },       // all global events
-        { createdBy: userId },    // my personal events
-      ],
-    };
+    let query = {};
 
-    // Student-specific filtering for non-global events
-    if (role === "student") {
-      query.$or.push({ dept, year });
+    // Admins see everything, others use specific visibility scopes
+    if (!isAdmin) {
+      query = {
+        $or: [
+          { isGlobal: true },       // all global events
+          { createdBy: userId },    // my personal events
+        ],
+      };
+
+      // Student-specific filtering for non-global events
+      if (role === "student") {
+        query.$or.push({ dept, year });
+      }
     }
 
     const events = await Event.find(query).sort({ start: 1 });
@@ -51,12 +58,19 @@ router.get("/", auth, async (req, res) => {
 
 /**
  * POST /api/events
- * Create event (personal by default; faculty can set global)
+ * Create event (personal by default; faculty and admin can set global)
  */
 router.post("/", auth, async (req, res) => {
+  // 👇 DIAGNOSTIC LOG: Check what properties your auth middleware is actually attaching
+  console.log("🔍 [Backend Auth Audit] req.user content:", req.user);
+  console.log("🔍 [Backend Payload Audit] req.body content:", req.body);
+
   try {
     const userId = (req.user._id || req.user.id).toString();
-    const isFaculty = req.user?.role === "faculty" || req.user?.isFaculty;
+    const { role } = req.user;
+    const isFaculty = role === "faculty" || req.user?.isFaculty;
+    const isAdmin = role === "admin";
+    const canCreateGlobal = isFaculty || isAdmin;
 
     const {
       title,
@@ -79,10 +93,10 @@ router.post("/", auth, async (req, res) => {
       });
     }
 
-    if (isGlobal && !isFaculty) {
+    if (isGlobal && !canCreateGlobal) {
       return res.status(403).json({
         success: false,
-        message: "Only faculty create global events",
+        message: "Only faculty or administrators can create global events",
       });
     }
 
@@ -97,7 +111,7 @@ router.post("/", auth, async (req, res) => {
       description: description || "",
       isReminder: !!isReminder,
       color,
-      isGlobal: isFaculty && !!isGlobal,
+      isGlobal: canCreateGlobal && !!isGlobal,
       createdBy: userId,
     });
 
@@ -149,7 +163,7 @@ router.get("/mine", auth, async (req, res) => {
 
 /**
  * PUT /api/events/:id
- * Edit with ownership/role checks
+ * Edit with ownership/role/admin checks
  */
 router.put("/:id", auth, async (req, res) => {
   try {
@@ -161,16 +175,22 @@ router.put("/:id", auth, async (req, res) => {
     }
 
     const userId = (req.user._id || req.user.id).toString();
+    const { role } = req.user;
+    
     const isOwner = event.createdBy?.toString() === userId;
-    const isFaculty = req.user?.role === "faculty" || req.user?.isFaculty;
+    const isFaculty = role === "faculty" || req.user?.isFaculty;
+    const isAdmin = role === "admin";
 
-    if (event.isGlobal && !isFaculty) {
+    // 1. Check permissions if modifying a global event
+    if (event.isGlobal && !isFaculty && !isAdmin) {
       return res.status(403).json({
         success: false,
-        message: "Only faculty edit global events",
+        message: "Only faculty or administrators can edit global events",
       });
     }
-    if (!event.isGlobal && !isOwner) {
+
+    // 2. Check permissions if modifying a personal/restricted event
+    if (!event.isGlobal && !isOwner && !isAdmin) {
       return res.status(403).json({
         success: false,
         message: "Cannot edit this event",
@@ -185,8 +205,8 @@ router.put("/:id", auth, async (req, res) => {
       }
     });
 
-    // Safe isGlobal upgrade: personal -> global (faculty only)
-    if (!event.isGlobal && updates.isGlobal && isFaculty) {
+    // Safe isGlobal upgrade: personal -> global (faculty or admin only)
+    if (!event.isGlobal && updates.isGlobal && (isFaculty || isAdmin)) {
       event.isGlobal = true;
     }
 
@@ -207,7 +227,7 @@ router.put("/:id", auth, async (req, res) => {
 
 /**
  * DELETE /api/events/:id
- * Delete with ownership/role checks
+ * Delete with ownership/role/admin checks
  */
 router.delete("/:id", auth, async (req, res) => {
   try {
@@ -219,16 +239,22 @@ router.delete("/:id", auth, async (req, res) => {
     }
 
     const userId = (req.user._id || req.user.id).toString();
-    const isOwner = event.createdBy?.toString() === userId;
-    const isFaculty = req.user?.role === "faculty" || req.user?.isFaculty;
+    const { role } = req.user;
 
-    if (event.isGlobal && !isFaculty) {
+    const isOwner = event.createdBy?.toString() === userId;
+    const isFaculty = role === "faculty" || req.user?.isFaculty;
+    const isAdmin = role === "admin";
+
+    // 1. Check global event destruction rights
+    if (event.isGlobal && !isFaculty && !isAdmin) {
       return res.status(403).json({
         success: false,
-        message: "Only faculty delete global events",
+        message: "Only faculty or administrators can delete global events",
       });
     }
-    if (!event.isGlobal && !isOwner) {
+
+    // 2. Check localized event destruction rights
+    if (!event.isGlobal && !isOwner && !isAdmin) {
       return res.status(403).json({
         success: false,
         message: "Cannot delete this event",

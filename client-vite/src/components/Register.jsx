@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Auth.css";
 
-function Register({ onRegister, switchToLogin, goHome }) {
+function Register({ switchToLogin, goHome }) {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -14,6 +14,9 @@ function Register({ onRegister, switchToLogin, goHome }) {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  
+  // State to handle granular, field-specific validation errors from the backend
+  const [fieldErrors, setFieldErrors] = useState({});
   const [success, setSuccess] = useState(false);
 
   const togglePasswordVisibility = () => {
@@ -24,6 +27,7 @@ function Register({ onRegister, switchToLogin, goHome }) {
     e.preventDefault();
     setIsSubmitting(true);
     setError("");
+    setFieldErrors({}); // Clear previous field-level errors
     setSuccess(false);
 
     try {
@@ -47,47 +51,18 @@ function Register({ onRegister, switchToLogin, goHome }) {
       const data = await response.json();
 
       if (!response.ok) {
+        // If the backend returns targeted field errors, store them
+        if (data.errors) {
+          setFieldErrors(data.errors);
+        }
         throw new Error(data.message || "Registration failed");
       }
 
-      // Prefer backend user object; fallback to payload if missing
-      const user = data.user || {
-        name: payload.name,
-        email: payload.email,
-        year: payload.year,
-        rollNumber: payload.rollNumber,
-        dept: payload.dept,
-        phone: payload.phone,
-        role: payload.role,
-      };
-
-      // ✅ Save token + full user for useUserRole / header
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      // Optional: keep individual keys if other code uses them
-      localStorage.setItem("name", user.name);
-      localStorage.setItem("email", user.email);
-      localStorage.setItem("year", user.year);
-      localStorage.setItem("rollNumber", user.rollNumber);
-      localStorage.setItem("dept", user.dept);
-      localStorage.setItem("phone", user.phone);
-      localStorage.setItem("role", user.role);
-
+      // ✅ SUCCESS: Account created, don't store token in localStorage yet.
       setSuccess(true);
 
       setTimeout(() => {
-        onRegister({
-          role: user.role,
-          name: user.name,
-          email: user.email,
-          year: user.year,
-          rollNumber: user.rollNumber,
-          dept: user.dept,
-          phone: user.phone,
-          token: data.token,
-        });
-
+        // Clear out form inputs clean
         setName("");
         setEmail("");
         setYear("");
@@ -95,12 +70,37 @@ function Register({ onRegister, switchToLogin, goHome }) {
         setDept("");
         setPhone("");
         setPassword("");
+
+        // ✅ Redirect to login view using navigation or look for component toggle fallback prop
+        if (typeof switchToLogin === "function") {
+          switchToLogin();
+        } else {
+          navigate("/login");
+        }
       }, 1500);
     } catch (err) {
       setError(err.message);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Inline styling helper for clean field-specific error labels
+  const renderFieldError = (fieldName) => {
+    if (!fieldErrors[fieldName]) return null;
+    return (
+      <div
+        className="field-error-message"
+        style={{
+          color: "#ef4444",
+          fontSize: "0.8rem",
+          marginTop: "0.25rem",
+          fontWeight: "500",
+        }}
+      >
+        ⚠️ {fieldErrors[fieldName]}
+      </div>
+    );
   };
 
   if (success) {
@@ -130,6 +130,9 @@ function Register({ onRegister, switchToLogin, goHome }) {
             }}
           >
             ✅ Account created successfully!
+            <div style={{ color: "#6b7280", fontSize: "0.85rem", marginTop: "0.5rem" }}>
+              Redirecting you to login screen...
+            </div>
           </div>
         </div>
       </div>
@@ -188,6 +191,7 @@ function Register({ onRegister, switchToLogin, goHome }) {
                 disabled={isSubmitting}
               />
             </div>
+            {renderFieldError("name")}
           </div>
 
           <div>
@@ -203,6 +207,7 @@ function Register({ onRegister, switchToLogin, goHome }) {
                 disabled={isSubmitting}
               />
             </div>
+            {renderFieldError("email")}
           </div>
 
           <div>
@@ -222,6 +227,7 @@ function Register({ onRegister, switchToLogin, goHome }) {
                 <option value="4th">4th Year</option>
               </select>
             </div>
+            {renderFieldError("year")}
           </div>
 
           <div>
@@ -238,6 +244,7 @@ function Register({ onRegister, switchToLogin, goHome }) {
                 disabled={isSubmitting}
               />
             </div>
+            {renderFieldError("rollNumber")}
           </div>
 
           <div>
@@ -260,6 +267,7 @@ function Register({ onRegister, switchToLogin, goHome }) {
                 <option value="Basic Sciences">Basic Sciences</option>
               </select>
             </div>
+            {renderFieldError("dept")}
           </div>
 
           <div>
@@ -281,6 +289,7 @@ function Register({ onRegister, switchToLogin, goHome }) {
                 disabled={isSubmitting}
               />
             </div>
+            {renderFieldError("phone")}
           </div>
 
           <div>
@@ -308,6 +317,7 @@ function Register({ onRegister, switchToLogin, goHome }) {
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
                       strokeLinecap="round"
@@ -328,6 +338,7 @@ function Register({ onRegister, switchToLogin, goHome }) {
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
                       strokeLinecap="round"
@@ -339,6 +350,7 @@ function Register({ onRegister, switchToLogin, goHome }) {
                 )}
               </button>
             </div>
+            {renderFieldError("password")}
           </div>
 
           <button

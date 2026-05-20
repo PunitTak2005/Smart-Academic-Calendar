@@ -1,12 +1,8 @@
 // src/middleware/auth.js
-// ✅ OPTIMIZED: Production ESM JWT middleware - Virtuals + secure options
-// Fixed for your User schema virtuals, enhanced security [web:36][web:42]
-
 import jwt from "jsonwebtoken";
-import * as UserModel from "../models/User.js";
-const User = UserModel.default || UserModel;
+import User from "../models/User.js";
 
-console.log("🔑 AUTH MIDDLEWARE: LOADED ✅");  // No secret leak
+console.log("🔑 AUTH MIDDLEWARE: LOADED ✅");
 
 const auth = async (req, res, next) => {
   try {
@@ -18,7 +14,7 @@ const auth = async (req, res, next) => {
     const token = authHeader.split(" ")[1];
     console.log("🔑 TOKEN:", token.slice(0, 20) + "...");
 
-    // Verify with options (no null/undefined checks needed)
+    // Verify token using designated algorithm
     const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ["HS256"] });
     console.log("✅ DECODED:", { id: decoded.id, role: decoded.role, email: decoded.email });
 
@@ -27,29 +23,37 @@ const auth = async (req, res, next) => {
       return res.status(401).json({ success: false, message: "Invalid token payload" });
     }
 
-    // Fetch with virtuals populated
-    const user = await User.findById(userId).select("-password");
+    // Fetch user profile from database
+    const user = await User.findById(userId);
+    
+    // Safety check matching your User schema defaults
     if (!user || !user.isActive) {
-      console.log("❌ Inactive/missing:", userId);
-      return res.status(401).json({ success: false, message: "User inactive" });
+      console.log("❌ Inactive or missing user:", userId);
+      return res.status(401).json({ success: false, message: "User inactive or not found" });
     }
 
-    // Attach full profile incl. virtuals
+    // =========================================================================
+    // 🛡️ SECURITY INTERCEPT: Block Unapproved Faculty Web Requests
+    // =========================================================================
+    if (user.role === "faculty" && !user.isApproved) {
+      console.log(`❌ Intercepted Unapproved Faculty Access Attempt: ${user.name} (${userId})`);
+      return res.status(403).json({ 
+        success: false, 
+        isPendingApproval: true,
+        message: "Access denied. Your faculty account is awaiting administrative verification." 
+      });
+    }
+
+    const isAdmin = user.role === "admin";
+
+    // ✅ CLEANER MAPPING: Spread your schema's built-in instance method, then handle admin privileges
     req.user = {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      dept: user.dept,
-      phone: user.phone,
-      year: user.year,
-      rollNumber: user.rollNumber,
-      isFaculty: user.isFaculty,  // ✅ Virtual from schema
-      isStudent: user.isStudent,  // ✅ Virtual
-      isActive: user.isActive
+      ...user.toAuthJSON(),
+      isFaculty: isAdmin ? true : user.isFaculty,  // Uses schema virtual with admin override
+      isStudent: isAdmin ? false : user.isStudent  // Uses schema virtual with admin override
     };
 
-    console.log("👤 Attached:", `${req.user.role} ${req.user.name}`);
+    console.log(`👤 Attached: ${req.user.role} ${req.user.name} (Faculty Privileges: ${req.user.isFaculty})`);
     next();
   } catch (err) {
     console.error("❌ AUTH ERR:", err.name, err.message);
@@ -59,7 +63,7 @@ const auth = async (req, res, next) => {
     if (err.name === "JsonWebTokenError") {
       return res.status(401).json({ success: false, message: "Invalid token" });
     }
-    res.status(401).json({ success: false, message: "Auth failed" });
+    return res.status(401).json({ success: false, message: "Auth failed" });
   }
 };
 
