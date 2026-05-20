@@ -39,7 +39,3 @@ Follow these steps to set up the project locally.
 * Node.js installed (v16+ recommended)
 * MongoDB Atlas account or local MongoDB instance
 
-### 1. Clone the Repository
-```bash
-git clone [https://github.com/PunitTak2005/Smart-Academic-Calendar.git](https://github.com/PunitTak2005/Smart-Academic-Calendar.git)
-cd Smart-Academic-Calendar
